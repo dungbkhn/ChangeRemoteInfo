@@ -1,5 +1,6 @@
 # ChangeRemoteInfo
 package needed:
-sudo apt install nodejs
-sudo apt install npm
-sudo apt install multer express find
+sudo apt install nodejs <br />
+sudo apt install npm <br />
+sudo apt install multer express find <br />
+chmod 755 changepw.sh <br />
