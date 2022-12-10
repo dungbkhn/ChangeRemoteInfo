@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="./.favicon.ico">
+<title>Device Information</title>
+<style>
+	
+* {
+	padding:0;
+	margin:0;
+}
+
+body {
+	color: #333;
+	font: 14px Sans-Serif;
+	padding: 50px;
+	background: #eee;
+}
+
+h1 {
+	text-align: center;
+	padding: 20px 0 12px 0;
+	margin: 0;
+}
+h2 {
+	font-size: 20px;
+	text-align: center;
+	padding: 0 0 12px 0; 
+}
+
+#container {
+	box-shadow: 0 5px 10px -5px rgba(0,0,0,0.5);
+	position: relative;
+	background: transparent; 
+	padding-top: 5px;
+}
+
+.column1 {
+  float: left;
+  width: 40%;
+  padding: 20px;
+  //height: 10%; /* Should be removed. Only for demonstration */
+}
+
+.column2 {
+  float: left;
+  width: 50%;
+  padding: 20px;
+  //height: 10%; /* Should be removed. Only for demonstration */
+}
+
+.mylink{
+	font-size: 18px;
+	background: none!important;
+  border: none;
+  padding: 0!important;
+  /*optional*/
+  font-family: arial, sans-serif;
+  /*input has OS specific font-family*/
+  color: #00008B;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+table {
+	background-color: #F3F3F3;
+	border-collapse: collapse;
+	width: 100%;
+	margin: 15px 0;
+}
+
+.cbox {
+
+	margin: 10px;
+}
+
+.my-link{
+	
+}
+
+.btun {
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  /*optional*/
+  font-family: arial, sans-serif;
+  /*input has OS specific font-family*/
+  color: #9ACD32;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+th {
+	background-color: #4169E1;
+	color: #FFF;
+	padding: 5px 10px;
+}
+
+th small {
+	font-size: 9px; 
+}
+
+td, th {
+	text-align: left;
+}
+
+a {
+	text-decoration: none;
+}
+
+td a {
+	color: #663300;
+	display: block;
+	padding: 5px 10px;
+}
+
+td p {
+	color: #663300;
+	display: block;
+	padding: 5px 10px;
+}
+
+th a {
+	padding-left: 0
+}
+
+td:first-of-type p {
+	background: url(./images/file.png) no-repeat 10px 50%;
+	padding-left: 35px;
+}
+
+td:first-of-type a {
+	background: url(./images/file.png) no-repeat 10px 50%;
+	padding-left: 35px;
+}
+th:first-of-type {
+	padding-left: 35px;
+}
+
+td:not(:first-of-type) a {
+	background-image: none !important;
+} 
+
+tr:nth-of-type(odd) {
+	background-color: #E6E6E6;
+}
+
+tr:hover td {
+	background-color:#CACACA;
+}
+
+tr:hover td a {
+	color: #000;
+}
+
+/* directories */
+table tr.dir td:first-of-type a
+{background-image: url(./images/BlueFolder.png);background-size: 22px 22px;}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-message-box@3.2.2/dist/messagebox.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-message-box@3.2.2/dist/messagebox.min.css"> 
+
+<script>
+
+$(document).ready(function(){
+  var refreshIntervalId,refreshDelIntervalId,del = false,setup = false,selectlabel = false;;
+  var numreq=0,numdelreq=0;
+
+  $( "#currentpath" ).html('');
+	
+	
+  $("#mystatus").html("  ");
+  
+  
+  $( "#logout" ).click(function(  ) {
+	window.location.href='./logout?p='+$("#token").val() + ':'+$("#path").val();
+  });
+  
+ $( "#cwap" ).click(function(  ) {
+	window.location.href='./cwap?token='+$("#token").val() + '&currentdir='+$("#path").val(); 
+  });
+  
+  $( "#csap" ).click(function(  ) {
+	window.location.href='./csap?token='+$("#token").val() + '&currentdir='+$("#path").val(); 
+  });
+
+});
+
+  
+  String.prototype.hexDecode = function(){
+    var j;
+    var hexes = this.match(/.{1,4}/g) || [];
+    var back = "";
+    for(j = 0; j<hexes.length; j++) {
+        back += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+
+    return back;
+}
+
+String.prototype.hexEncode = function(){
+    var hex, i;
+
+    var result = "";
+    for (i=0; i<this.length; i++) {
+        hex = this.charCodeAt(i).toString(16);
+        result += ("000"+hex).slice(-4);
+    }
+
+    return result
+}
+</script>
+</head>
+<body>
+
+<div>
+<input id="logout" name="logout" type="button" value="Logout">
+</div>
+
+<div id="container" >
+<div style="font-size:34px;font-weight: bold;text-align:center;">Device Information</div>
+<br>
+<br>
+<br>
+<div>
+  <div class="column1">
+    <div style="font-size:24px;text-align:center">You can select a action to do:</div>
+    <h4 id="currentpath" style="text-align:center"></h4>
+    <p id="mystatus" style="padding-top:50px;padding-left: 10px;">    </p>
+  </div>
+  <div class="column2" style="background-color:#ddd; border-left: 4px solid blue;">
+	<h2><input type=button id="cwap" class="mylink" value='Change Web Account Password'></h2>
+	<h2><input type=button id="csap"  class="mylink" value='Change Store Account Password'></h2>	
+  </div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th></th>
+
+
+
+
+
+

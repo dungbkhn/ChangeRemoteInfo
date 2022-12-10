@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="./.favicon.ico">
+<title>Options</title>
+<style>
+	
+* {
+	padding:0;
+	margin:0;
+}
+
+body {
+	font: 14px Sans-Serif;
+	padding: 50px;
+	background: #eee;
+}
+
+h1 {
+	text-align: center;
+	padding: 20px 0 12px 0;
+	margin: 0;
+}
+
+h2 {
+	font-size: 16px;
+	text-align: center;
+	padding: 0 0 12px 0; 
+
+}
+
+h3 {
+	font-size: 13px;
+	text-align: center;
+	padding: 0 0 12px 0; 
+
+}
+
+#container {
+	box-shadow: 0 5px 10px -5px rgba(0,0,0,0.5);
+	position: relative;
+	background: white; 
+}
+
+.button {
+  background-color: #0000FF; /* Green */
+  color: white;
+  padding: 4px 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.btun {
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  font-family: arial, sans-serif;
+  color: #9ACD32;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-message-box@3.2.2/dist/messagebox.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-message-box@3.2.2/dist/messagebox.min.css"> 
+
+<script>
+
+  $(document).ready(function(){
+		$("#change_newpasswd").click(function(){
+			if(($("#newpasswd1").val()==='')||($("#newpasswd2").val()==='')){
+				$.MessageBox("New password must be not empty!");
+				return;
+			}
+			
+			if($("#newpasswd1").val().trim().length < 9){
+				$.MessageBox("New password length must be greater than 8 (after trimming)!");
+				return;
+			}
+			
+			if(($("#newpasswd1").val().trim().indexOf("'")!=-1)||($("#newpasswd1").val().trim().indexOf('"')!=-1)||($("#newpasswd1").val().trim().indexOf("\\")!=-1)||($("#newpasswd1").val().trim().indexOf(" ")!=-1)){
+				$.MessageBox("Name can not contain special char as white space  \" \' \\ ");
+				return;
+			}
+		
+			/*$.MessageBox({
+					buttonDone  : "OK",
+					buttonFail  : "Cancel",
+					message     : "Do you really want to change Web's password?"
+				}).done(function(data, button){
+					//window.location.href='./del?token='+$("#token").val() + '&currentdir='+$("#path").val() + '&dname=' + getChecked().hexEncode();
+					alert($("#oldpasswd").val()+":"+$("#newpasswd1").val()+":"+$("#newpasswd2").val());
+					
+					
+				}).fail(function(data, button){
+				});
+				*/
+				$("#change_newpasswd").prop('disabled', true);
+				$("#back").prop('disabled', true);
+				$.post('/trycwap',  // url
+				   { 
+					   oldpasswd: $("#oldpasswd").val(),
+					   newpasswd1: $("#newpasswd1").val().trim(),
+					   newpasswd2: $("#newpasswd2").val().trim(),
+					}, // data to be submit
+				   
+				   function(data, status, xhr) {   // success callback function
+							//alert('status: ' + status + ', data: ' + data.a);
+							if (data.ok == 2) {
+								$.MessageBox({
+									message  : "Change password successfully!"
+								}).done(function(data){
+									window.location.href='./path?p='+ document.getElementById("token").value + ':' + document.getElementById("path").value;
+								});
+							}
+							else if (data.ok == 1) {
+								$("#change_newpasswd").prop('disabled', false);
+								$("#back").prop('disabled', false);
+								$.MessageBox("New password retyped not match!");
+							}
+							else if (data.ok == 0) {
+								$("#change_newpasswd").prop('disabled', false);
+								$("#back").prop('disabled', false);
+								$.MessageBox("Current password not match!");
+							}
+							else {
+								$("#change_newpasswd").prop('disabled', false);
+								$("#back").prop('disabled', false);
+								$.MessageBox("Unknown error!");
+							}
+						},
+				   'json'); // response data format	
+					});	
+		
+		
+  });
+  
+  
+	
+	function logout(){
+		window.location.href='./logout?p='+ document.getElementById("token").value + ':';
+	}
+	
+	function back(){
+		
+		window.location.href='./path?p='+ document.getElementById("token").value + ':' + document.getElementById("path").value;
+	}
+	
+	String.prototype.hexDecode = function(){
+		var j;
+		var hexes = this.match(/.{1,4}/g) || [];
+		var back = "";
+		for(j = 0; j<hexes.length; j++) {
+			back += String.fromCharCode(parseInt(hexes[j], 16));
+		}
+
+		return back;
+	}
+
+	String.prototype.hexEncode = function(){
+		var hex, i;
+
+		var result = "";
+		for (i=0; i<this.length; i++) {
+			hex = this.charCodeAt(i).toString(16);
+			result += ("000"+hex).slice(-4);
+		}
+
+		return result
+	}
+</script>
+
+</head>
+<body>
+	
+<div>
+<input type=button id="logout"  value='Logout' onclick = "logout()">
+<input type=button id="back"  value='Back' onclick = "back()">
+</div>
+
+<div id="container">
+<h1>Change Website Account</h1><br>
+<hr></hr><br>
+
+<!--
+<h2>Change Password Web's Access</h2>
+<h3>Current Web's Password:  <input type="password" id="cwebpass" name="cwebpass"> </h3>
+<h3>My New Web's PassWord:   <input type="password" id="newwebpass" name="newwebpass"> </h3>
+<h3><button type="button" class="button" id="change_newwebpass">Change</button> </h3>
+<hr></hr><br>
+
+<h2>Change UserName Web's Access</h2>
+<h3>New UserName:   <input id="newwebusername" name="newwebusername"> </h3>
+<h3><button type="button" class="button" id="change_newwebusername">Change</button> </h3>
+<hr></hr><br>
+<h2>Change Password Admin</h2>
+<h3>Current Admin Password:  <input type="password" id="cadpass" name="cadpass"> </h3>
+<h3>(Or if you forget admin password) </h3>
+<h3>Current Admin PassCode:   <input type="password" id="cadpcode" name="cadpcode"> </h3>
+<h3>New Admin's PassWord  :   <input type="password" id="newadpass" name="newadpass"> </h3>
+<h3><button type="button" class="button">Change</button></h3>
+<hr></hr><br>
+<h2>Change Shared Folder Password "Store"'s User</h2>
+<h3>Current "Store"'s Password:  <input type="password" id="cstorepass" name="cstorepass"> </h3>
+<h3>New "Store" User PassWord:   <input type="password" id="newstorepass" name="newstorepass"> </h3>
+<h3><button type="button" class="button">Change</button></h3>
+-->
+
+
+
+
+
+
