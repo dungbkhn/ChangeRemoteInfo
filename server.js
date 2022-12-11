@@ -387,7 +387,7 @@ app.get('/csap', function(req ,res) {
 			 
 			 res.write('<h2>Change Password</h2>');
 			 
-			 res.write('<h3>Your Current Password <input type=password id="oldpasswd" name="oldpasswd"> </h3>');
+			 //res.write('<h3>Your Current Password <input type=password id="oldpasswd" name="oldpasswd"> </h3>');
 			 res.write('<h3>New Password (first__) <input type=password id="newpasswd1" name="newpasswd1"> </h3>');
 			 res.write('<h3>New Password (repeat) <input type=password id="newpasswd2" name="newpasswd2"> </h3>');
 			 res.write('<h3><button type="button" class="button" id="change_newpasswd">Change</button> </h3>');
