@@ -322,7 +322,8 @@ app.post('/trycsap',function(req,res){
 			 return;
 		 }
 		 
-		 var s = "./changepw.sh " + op + " " + np1;
+		 //var s = "./changepw.sh " + op + " " + np1;
+		 var s = "./changepw.sh " + np1;
 		 console.log("trycsap cmd:"+s);
 		 exec(s, function(err, stdout, stderr) {
 			if (err) {
