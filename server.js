@@ -410,6 +410,117 @@ app.get('/csap', function(req ,res) {
 /***************
 * Create Remote Link
 ****************/
+app.post('/trycrl',function(req,res){
+	try{
+		 console.log("trycrl with data:" + req.body.ipv6 + req.body.token + ":" + req.body.root + "/"+req.body.data);
+		 console.dir(req.body);	 
+		 var op = req.body.token + ":" + req.body.root + "/"+req.body.data;	
+		 var output = myday.generatedownlink(op);	 
+		 console.log("" + output.encryptedData);
+		 
+		 exec('test -f ' + req.body.root + "/" + req.body.data + ' && echo "file exists."', function(exec_err, stdout, stderr) {		 
+			 fs.readFile('./linkinfo.txt', 'utf8', function(readfile_err, data){
+				 if(readfile_err){	
+					 if(readfile_err.code == 'ENOENT'){
+						console.log(readfile_err);	
+						if(exec_err){
+							 res.setHeader('Content-Type', 'application/json');
+							 res.end(JSON.stringify({ mid: 0, link:0, ok: "" }));
+						}
+						else {
+							if(stdout.includes('file exists')){
+							 let seconds = new Date().getTime();
+							 let s = seconds + "#" + req.body.root + "/" + req.body.data + "\n";
+							 fs.writeFileSync('./linkinfo.txt', s);
+							 res.setHeader('Content-Type', 'application/json');
+							 res.end(JSON.stringify({ mid: 1, link:1, ok: 'https://['+req.body.ipv6+']:'+PORT+'/startdownlink?data='+output.encryptedData }));
+							}
+							else {
+							 res.setHeader('Content-Type', 'application/json');
+							 res.end(JSON.stringify({ mid: 2, link:0, ok: '' }));	
+							}
+						}
+					 }
+					 else {
+						res.setHeader('Content-Type', 'application/json');
+						res.end(JSON.stringify({ mid: 0, link:0, ok: "" }));	
+					 }				
+				 }
+				 else {
+					 let data_backup = data;
+					 let j=0;
+					 data.split(/\r?\n/).forEach(line =>  {	
+						if(line.length > 0){
+							let as = line.split("#");
+							let seconds = new Date().getTime();
+							let df = seconds/1000 - as[0]/1000;
+							if(df < 86400) j++;
+						}
+					 });
+					 
+					 if(j>4) j=4;				 
+					 
+					 if(exec_err){
+						 res.setHeader('Content-Type', 'application/json');
+						 res.end(JSON.stringify({ mid: 0, link:j, ok: "" }));
+					 }
+					 else {
+						 if(stdout.includes('file exists')){
+							console.log("file exits");
+							let fl=false;
+							let i=0;
+							if(j>=4){
+								j=0;i=-1;
+							} else {
+								j=0;i=0;
+							}
+							
+							data_backup.split(/\r?\n/).forEach(line =>  {									
+								if(line.length > 0){
+									let as = line.split("#");
+									let seconds = new Date().getTime();
+									let df = seconds/1000 - as[0]/1000;
+									if(df < 86400) {
+										if(i<0) {++i;}
+										else {
+											if(j<=3){
+												if(!fl){
+													fs.writeFileSync('./linkinfo.txt', line + "\n");
+													fl = true;
+												}
+												else fs.appendFileSync('./linkinfo.txt', line + "\n");
+												j++;
+											}
+										}
+									} 
+								}
+							});
+							let seconds = new Date().getTime();
+							let s = seconds + "#" + req.body.root + "/" + req.body.data + "\n";
+							if(!fl){
+								fs.writeFileSync('./linkinfo.txt', s);
+							}
+							else fs.appendFileSync('./linkinfo.txt', s);
+							
+							res.setHeader('Content-Type', 'application/json');
+							res.end(JSON.stringify({ mid: 1, link:j+1, ok: 'https://['+req.body.ipv6+']:'+PORT+'/startdownlink?data='+output.encryptedData }));
+							
+						 }
+						 else{
+							 res.setHeader('Content-Type', 'application/json');
+							 res.end(JSON.stringify({ mid: 2, link:j, ok: '' }));	
+						 }
+					 }					 
+				 }
+			 });//end readfile
+	   });//end exec	 
+	}
+	catch(e){
+		res.setHeader('Content-Type', 'application/json');
+		res.end(JSON.stringify({ mid: 0, link:0, ok: "" }));
+		return;
+	}
+});
 
 app.get('/crl', function(req ,res) {
 	try{
