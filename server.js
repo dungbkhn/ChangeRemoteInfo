@@ -45,6 +45,7 @@ const app = express();
 
 // server configuration
 const PORT = 19999; 
+const PORT_CreateRemoteLink = 29999;
 
 //parser
 const bodyParser = require('body-parser');
@@ -503,7 +504,7 @@ app.post('/trycrl',function(req,res){
 							else fs.appendFileSync('./linkinfo.txt', s);
 							
 							res.setHeader('Content-Type', 'application/json');
-							res.end(JSON.stringify({ mid: 1, link:j+1, ok: 'https://['+req.body.ipv6+']:'+PORT+'/startdownlink?data='+output.encryptedData }));
+							res.end(JSON.stringify({ mid: 1, link:j+1, ok: 'https://['+req.body.ipv6+']:'+PORT_CreateRemoteLink+'/startdownlink?data='+output.encryptedData }));
 							
 						 }
 						 else{
