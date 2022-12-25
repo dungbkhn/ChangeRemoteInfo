@@ -407,6 +407,81 @@ app.get('/csap', function(req ,res) {
 
 });
 
+/***************
+* Create Remote Link
+****************/
+
+app.get('/crl', function(req ,res) {
+	try{
+		console.log('Select crl');
+		let token = req.query.token;
+		let p = req.query.currentdir;
+		
+		p = p.trim().hexDecode();
+		console.log("token:" + token);
+		console.log("currentdir:" + p);
+		//check valid token
+		if(checkvalidtoken(token,res)===false)
+			return;
+		
+		//check valid time
+		if(checkvalidtime(res)===false)
+			return;
+			
+		exec("./getipv6addr.sh | tr -d '\n'", function(err, stdout, stderr) {
+			if (err) {
+				res.send("Error occurred when trying get ipv6!");
+			}
+			else {
+				 fs.readFile(__dirname + '/crl.html', function (err,html) {
+					 if (err) {
+						throw err; 
+					 }  
+					 
+					 let j=0;
+					 // Use fs.readFile() method to read the file
+					 fs.readFile('./linkinfo.txt', 'utf8', function(err, data){
+						if(err){							
+						}
+						else{
+							//console.log(data);
+							data.split(/\r?\n/).forEach(line =>  {						
+								if(line.length > 0){
+									let as = line.split("#");
+									let seconds = new Date().getTime();
+									let df = seconds/1000 - as[0]/1000;
+									if(df < 86400) j++;
+								}
+						    });
+						}
+						 res.setHeader('content-type', 'text/html');
+						 res.write(html); 
+						 res.write('<br>');
+						 res.write('<h2>Add File To Generate Link</h2>');
+						 res.write('<h3 id="linknumber"> You have ' + j + ' link(s) active </h3>');					 			 
+						 res.write('<h3>/var/res/ <input type=text id="textlink" name="textlink"> </h3>');
+						 res.write('<textarea id="output" name="w3review" rows="10" cols="100"> </textarea>');
+						 res.write('<br>');
+						 res.write('<h3><button type="button" class="button" id="addlink">CreateLink</button> </h3>');						 
+						 res.write('<input type="hidden" id="ipv6" name="ipv6" value="'+stdout+'">');
+						 res.write('<input type="hidden" id="token" name="token" value="'+token+'">');
+						 res.write('<input type="hidden" id="path" name="path" value="'+p.hexEncode()+'">');	 
+						 res.write('</div>');
+						 res.write('</body>');
+						 res.write('</html>');
+						 res.end();
+					 });
+				 });
+			}
+		});
+		
+		 
+	}
+	catch(e){
+		res.send("Error occurred!");
+		return;
+	}
+});
 
 /*********
  * Other Functions
