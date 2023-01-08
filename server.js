@@ -640,7 +640,51 @@ function writefirst(res,token,firstcall, pPath, aPath){
 		 res.write('</tbody>');
 		 res.write('</table>');
 		 //console.log("firstcall=" + firstcall);
-		 if(firstcall==true){
+		 fs.readFile('../autotox/alog.txt', 'utf8', (err, data) => {
+		  if (err) {
+		    console.error(err);
+		    return;
+		  }
+
+		  let c=0;  
+		  data.split(/\r?\n/).forEach(line =>  {
+		    //console.log(`Line from file: ${line}`);
+		    let l = line.toString();
+		    c++;
+		    if(c==3) {
+			  console.log(l);
+			  fs.readFile('../autotox/addmsgdata.tox', 'utf8', (err, data) => {
+			      if (err) {
+				  console.error(err);
+				  return;
+			      }
+			      console.log(data);
+
+
+				 let aid=l;
+				 let amsg=data;
+				 res.write('<p>AutotoxID: '+aid+'</p>');
+				 res.write('<p>AddedMessage: '+amsg+'</p>');
+				 if(firstcall==true){
+					 res.write('<input type="hidden" id="path" name="path" value="">');
+				 }
+				 else {
+					 res.write('<input type="hidden" id="path" name="path" value="'+aPath.hexEncode()+'">');
+				 }
+
+				 res.write('<input type="hidden" id="token" name="token" value="'+token+'">');
+				 res.write('</div>');
+				 res.write('</body>');
+				 res.write('</html>');
+				 res.end();
+
+			  });
+		    }
+		  });
+
+		});
+	
+		 /*if(firstcall==true){
 			 res.write('<input type="hidden" id="path" name="path" value="">');
 		 }
 		 else {
@@ -651,7 +695,7 @@ function writefirst(res,token,firstcall, pPath, aPath){
 		 res.write('</div>');
 		 res.write('</body>');
 		 res.write('</html>');
-		 res.end();
+		 res.end();*/
 }
 
 function checkvalidtime(res){
